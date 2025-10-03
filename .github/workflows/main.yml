@@ -41,7 +41,7 @@ jobs:
       - name: Run the command
         if: ${{ steps.validate.outputs.skip != 'true' }}
         env:
-          FLAG: "flag"
+          FLAG: "dummyFlag"
         run: |
           echo "Got it"
           ${{ steps.validate.outputs.command }}
