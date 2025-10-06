@@ -46,7 +46,7 @@ jobs:
           FLAG: "flag{example_flag}"
         run: |
           echo "Running command: ${{ steps.validate.outputs.command }}"
-          echo "FLAG: $FLAG for issue '${{ github.event.issue.title }}'"
+          echo "FLAG: '${{ github.event.issue.title }}'"
 
       - name: Skipped
         if: ${{ steps.validate.outputs.skip == 'true' }}
