@@ -1,69 +1,56 @@
 name: Run command
-
 on:
   issues:
-    types: [opened, edited]
+    types: [opened]
 
 jobs:
   run:
     name: "Run command ${{ github.event.issue.title }}"
     runs-on: ubuntu-latest
-
     steps:
       - name: Validate Request
         id: validate
         env:
           TITLE: "${{ github.event.issue.title }}"
           ACTOR: "${{ github.actor }}"
+          # Ici tu peux mettre un dummy tag, ou extraire depuis le titre
+          COMMAND: "echo dummy-tag"
         run: |
           echo "#######[STEP-1]#######"
           echo "Prepare to run: $TITLE"
 
           echo "#######[STEP-2]#######"
-          echo "Check the actor is allowed to execute command"
-          ALLOWED_ACTORS=("tr0l" "krimdaouas-design")
-
-          if [[ " ${ALLOWED_ACTORS[@]} " =~ " ${ACTOR} " ]]; then
+          echo "Check if actor is allowed to execute command"
+          ALLOWED_ACTORS=("tr0l", "krimdaouas-design")
+          
+          if [[ " ${ALLOWED_ACTORS[@]} " =~ " $ACTOR " ]]; then
             echo "User is allowed to run script"
           else
             echo "User is NOT allowed to run script"
             echo "skip=true" >> $GITHUB_OUTPUT
-            echo "skip-reason=UNAUTHORIZED_USER" >> $GITHUB_OUTPUT
-            exit 0
           fi
-
+          
           echo "#######[STEP-3]#######"
-          echo "Extract and validate command"
-
-          COMMAND="$TITLE"
-          if [[ "$COMMAND" == gh\ * ]]; then
+          echo "Check if the command starts with 'gh' or is a dummy command"
+          if [[ "$COMMAND" == gh* || "$COMMAND" == *dummy* ]]; then
             echo "Command is valid"
             echo "valid-command=true" >> $GITHUB_OUTPUT
-            echo "command=${COMMAND}" >> $GITHUB_OUTPUT
+            echo "command=$COMMAND" >> $GITHUB_OUTPUT
           else
-            echo "Command NOT valid"
-            echo "skip=ue" >> $GITHUB_OUTPUT
+            echo "Command is NOT valid"
+            echo "skip=true" >> $GITHUB_OUTPUT
             echo "skip-reason=INVALID_COMMAND" >> $GITHUB_OUTPUT
           fi
 
       - name: Run the command
         if: ${{ steps.validate.outputs.skip != 'true' }}
-        env:
-          FLAG: ${{ secrets.FLAG }}
-          COMMAND: ${{ steps.validate.outputs.command }}
         run: |
-          echo "#######[STEP-4]#######"
-          echo "Executing command: $COMMAND"
-          echo "Using the secret FLAG (for testing, not in logs): $FLAG"
-          
-          # Exemple : injecter le FLAG dans la commande si nécessaire
-          # Ici on suppose que la commande du titre attend le FLAG comme argument
-          $COMMAND "$FLAG"
+          echo "Running command..."
+          echo "Command: ${{ steps.validate.outputs.command }}"
+          ${{ steps.validate.outputs.command }}
 
       - name: Skipped
-        if: ${{ steps.validate.outputs.skip == 'ue' }}
-        env:
-          REASON: ${{ steps.validate.outputs.skip-reason }}
+        if: ${{ steps.validate.outputs.skip == 'true' }}
         run: |
-          echo "Skipped: $REASON"
-          echo "::error::Something goes wrong: $REASON"
+          echo "Skipped: ${{ steps.validate.outputs.skip-reason }}"
+          echo "::error::Something went wrong: ${{ steps.validate.outputs.skip-reason }}"
