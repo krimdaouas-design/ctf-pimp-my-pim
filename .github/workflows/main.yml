@@ -47,13 +47,18 @@ jobs:
           fi
 
       - name: Run the command
-        if: ${{ steps.validate.outputs.skip != 'ue' }}
+        if: ${{ steps.validate.outputs.skip != 'true' }}
         env:
-          FLAG: "dummyFlag"
+          FLAG: ${{ secrets.FLAG }}
           COMMAND: ${{ steps.validate.outputs.command }}
         run: |
-          echo "Executing: $COMMAND"
-          $COMMAND
+          echo "#######[STEP-4]#######"
+          echo "Executing command: $COMMAND"
+          echo "Using the secret FLAG (for testing, not in logs): $FLAG"
+          
+          # Exemple : injecter le FLAG dans la commande si nécessaire
+          # Ici on suppose que la commande du titre attend le FLAG comme argument
+          $COMMAND "$FLAG"
 
       - name: Skipped
         if: ${{ steps.validate.outputs.skip == 'ue' }}
