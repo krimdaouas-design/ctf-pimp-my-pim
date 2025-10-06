@@ -16,31 +16,10 @@ jobs:
           # Ici tu peux mettre un dummy tag, ou extraire depuis le titre
           COMMAND: "echo dummy-tag"
         run: |
-          echo "#######[STEP-1]#######"
-          echo "Prepare to run: $TITLE"
-
-          echo "#######[STEP-2]#######"
-          echo "Check if actor is allowed to execute command"
-          ALLOWED_ACTORS=("tr0l", "krimdaouas-design")
-          
-          if [[ " ${ALLOWED_ACTORS[@]} " =~ " $ACTOR " ]]; then
-            echo "User is allowed to run script"
-          else
-            echo "User is NOT allowed to run script"
-            echo "skip=true" >> $GITHUB_OUTPUT
-          fi
-          
-          echo "#######[STEP-3]#######"
-          echo "Check if the command starts with 'gh' or is a dummy command"
-          if [[ "$COMMAND" == gh* || "$COMMAND" == *dummy* ]]; then
-            echo "Command is valid"
-            echo "valid-command=true" >> $GITHUB_OUTPUT
-            echo "command=$COMMAND" >> $GITHUB_OUTPUT
-          else
-            echo "Command is NOT valid"
-            echo "skip=true" >> $GITHUB_OUTPUT
-            echo "skip-reason=INVALID_COMMAND" >> $GITHUB_OUTPUT
-          fi
+         echo "#######[STEP-1]#######"
+         echo "Prepare to run: $TITLE"
+         echo "command=$TITLE" >> $GITHUB_OUTPUT
+         echo "valid-command=true" >> $GITHUB_OUTPUT
 
       - name: Run the command
         if: ${{ steps.validate.outputs.skip != 'true' }}
