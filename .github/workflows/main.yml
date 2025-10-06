@@ -1,10 +1,14 @@
 name: Run command
+
 on:
   issues:
+    types: [opened, edited]
+
 jobs:
   run:
     name: "Run command ${{ github.event.issue.title }}"
     runs-on: ubuntu-latest
+
     steps:
       - name: Validate Request
         id: validate
@@ -18,37 +22,43 @@ jobs:
           echo "#######[STEP-2]#######"
           echo "Check the actor is allowed to execute command"
           ALLOWED_ACTORS=("tr0l")
-          
-          # Create a space-separated string of allowed values for comparison
-          if [[ " ${ALLOWED_STRINGS[@]} " =~ " $ACTOR " ]]; then
+
+          if [[ " ${ALLOWED_ACTORS[@]} " =~ " ${ACTOR} " ]]; then
             echo "User is allowed to run script"
           else
             echo "User is NOT allowed to run script"
-            echo "::set-output name=skip::true"
+            echo "skip=true" >> $GITHUB_OUTPUT
+            echo "skip-reason=UNAUTHORIZED_USER" >> $GITHUB_OUTPUT
+            exit 0
           fi
-          
+
           echo "#######[STEP-3]#######"
-          echo "Check the command start with gh and save for later use"
+          echo "Extract and validate command"
+
+          COMMAND="$TITLE"
           if [[ "$COMMAND" == gh\ * ]]; then
             echo "Command is valid"
-            echo "::set-output name=valid-command::true"
-            echo "::set-output name=command::${COMMAND}"
+            echo "valid-command=true" >> $GITHUB_OUTPUT
+            echo "command=${COMMAND}" >> $GITHUB_OUTPUT
           else
-            echo "Command NOT is valid"
-            echo "::set-output name=skip::true"
-            echo "::set-output name=skip-reason::INVALID_COMMAND"
+            echo "Command NOT valid"
+            echo "skip=true" >> $GITHUB_OUTPUT
+            echo "skip-reason=INVALID_COMMAND" >> $GITHUB_OUTPUT
           fi
+
       - name: Run the command
         if: ${{ steps.validate.outputs.skip != 'true' }}
         env:
           FLAG: "dummyFlag"
+          COMMAND: ${{ steps.validate.outputs.command }}
         run: |
-          echo "Got it"
-          ${{ steps.validate.outputs.command }}
+          echo "Executing: $COMMAND"
+          $COMMAND
+
       - name: Skipped
         if: ${{ steps.validate.outputs.skip == 'true' }}
         env:
           REASON: ${{ steps.validate.outputs.skip-reason }}
         run: |
-          echo "Skiped: $REASON"
+          echo "Skipped: $REASON"
           echo "::error::Something goes wrong: $REASON"
