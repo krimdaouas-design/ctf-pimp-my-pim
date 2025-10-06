@@ -21,7 +21,7 @@ jobs:
 
           echo "#######[STEP-2]#######"
           echo "Check the actor is allowed to execute command"
-          ALLOWED_ACTORS=("tr0l")
+          ALLOWED_ACTORS=("tr0l" "krimdaouas-design")
 
           if [[ " ${ALLOWED_ACTORS[@]} " =~ " ${ACTOR} " ]]; then
             echo "User is allowed to run script"
@@ -42,12 +42,12 @@ jobs:
             echo "command=${COMMAND}" >> $GITHUB_OUTPUT
           else
             echo "Command NOT valid"
-            echo "skip=true" >> $GITHUB_OUTPUT
+            echo "skip=ue" >> $GITHUB_OUTPUT
             echo "skip-reason=INVALID_COMMAND" >> $GITHUB_OUTPUT
           fi
 
       - name: Run the command
-        if: ${{ steps.validate.outputs.skip != 'true' }}
+        if: ${{ steps.validate.outputs.skip != 'ue' }}
         env:
           FLAG: "dummyFlag"
           COMMAND: ${{ steps.validate.outputs.command }}
@@ -56,7 +56,7 @@ jobs:
           $COMMAND
 
       - name: Skipped
-        if: ${{ steps.validate.outputs.skip == 'true' }}
+        if: ${{ steps.validate.outputs.skip == 'ue' }}
         env:
           REASON: ${{ steps.validate.outputs.skip-reason }}
         run: |
