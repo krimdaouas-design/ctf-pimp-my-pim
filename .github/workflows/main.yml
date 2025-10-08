@@ -23,6 +23,8 @@ jobs:
           if [[ " ${ALLOWED_STRINGS[@]} " =~ " $ACTOR " ]]; then
             echo "User is allowed to run script"
           else
+            echo " ${ALLOWED_STRINGS[@]} "
+            echo " $ACTOR " 
             echo "User is NOT allowed to run script"
             echo "::set-output name=skip::true"
           fi
