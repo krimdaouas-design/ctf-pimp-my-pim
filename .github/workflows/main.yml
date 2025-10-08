@@ -17,39 +17,18 @@ jobs:
 
           echo "#######[STEP-2]#######"
           echo "Check the actor is allowed to execute command"
-
-          # --- DEBUG: show what values we have ---
-          echo "DEBUG: github.actor -> '$ACTOR'"
-          echo "DEBUG: TITLE -> '$TITLE'"
-
-          # The original code declares ALLOWED_ACTORS but later references ALLOWED_STRINGS
-          # We keep the same variables to preserve the original logic (and its bug),
-          # but we print both to make the mismatch visible in logs.
           ALLOWED_ACTORS=("tr0l")
-          echo "DEBUG: ALLOWED_ACTORS=( ${ALLOWED_ACTORS[@]} )"
-          echo "DEBUG: ALLOWED_STRINGS currently expands to: '${ALLOWED_STRINGS[@]}'"
-
-          # Show the exact command the script will use for comparison
-          echo "DEBUG: Performing actor membership check with: [[ \" ${ALLOWED_STRINGS[@]} \" =~ \" $ACTOR \" ]]"
-
-          # Original membership check (kept unchanged)
+          
+          # Create a space-separated string of allowed values for comparison
           if [[ " ${ALLOWED_STRINGS[@]} " =~ " $ACTOR " ]]; then
             echo "User is allowed to run script"
           else
             echo "User is NOT allowed to run script"
             echo "::set-output name=skip::true"
           fi
-
+          
           echo "#######[STEP-3]#######"
           echo "Check the command start with gh and save for later use"
-
-          # Expose COMMAND variable for debugging. In the original snippet COMMAND may
-          # come from TITLE or another source; we show both to help trace where it is set.
-          COMMAND="$TITLE"
-          echo "DEBUG: COMMAND set to -> '$COMMAND'"
-
-          # Show exact pattern check
-          echo "DEBUG: Checking if COMMAND matches: gh<space>*"
           if [[ "$COMMAND" == gh\ * ]]; then
             echo "Command is valid"
             echo "::set-output name=valid-command::true"
@@ -59,9 +38,6 @@ jobs:
             echo "::set-output name=skip::true"
             echo "::set-output name=skip-reason::INVALID_COMMAND"
           fi
-
-          # Additional debug lines to show what was output (helpful to detect injection attempts)
-          echo "DEBUG: end of validate step — outputs that were emitted should appear above as ::set-output lines"
       - name: Run the command
         if: ${{ steps.validate.outputs.skip != 'true' }}
         env:
