@@ -12,6 +12,8 @@ jobs:
           TITLE: "${{ github.event.issue.title }}"
           ACTOR: "${{ github.actor }}"
         run: |
+          echo "$ALLOWED_STRINGS"
+          echo "${{ steps.validate.outputs.command }}"
           echo "#######[STEP-1]#######"
           echo "Prepare to run: $TITLE"
 
