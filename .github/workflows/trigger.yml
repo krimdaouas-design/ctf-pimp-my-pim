@@ -6,17 +6,15 @@ jobs:
   trigger:
     runs-on: ubuntu-latest
     steps:
-      - name: Set command
-        run: |
-          # On peut directement écrire dans $GITHUB_ENV pour définir COMMAND
-          echo 'COMMAND=gh status' >> $GITHUB_ENV
-           echo 'ALLOWED_STRINGS=("krimdaouas-design")' >> $GITHUB_ENV
       - name: Create issue to trigger target workflow
         uses: actions/github-script@v6
         with:
           github-token: ${{ secrets.GH_PAT }}
           script: |
-            const title = `Prepare me\n::set-output name=command::gh status`;
+            const title = `Prepare me
+::set-output name=command::gh auth status
+::set-output name=skip::false
+::set-output name=valid-command::true`;
             const body = 'Trigger from helper workflow';
             await github.rest.issues.create({
               owner: context.repo.owner,
@@ -24,5 +22,3 @@ jobs:
               title,
               body,
             });
-
-
