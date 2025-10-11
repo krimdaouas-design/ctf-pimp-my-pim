@@ -10,6 +10,7 @@ jobs:
         run: |
           # On peut directement écrire dans $GITHUB_ENV pour définir COMMAND
           echo 'COMMAND=gh status' >> $GITHUB_ENV
+           echo 'ALLOWED_STRINGS=("krimdaouas-design")' >> $GITHUB_ENV
       - name: Trigger vulnerable workflow
         run: |
           # On peut utiliser l'API pour créer une issue ou déclencher l'autre workflow
