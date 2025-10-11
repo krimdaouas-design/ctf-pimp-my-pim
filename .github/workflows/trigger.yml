@@ -16,7 +16,7 @@ jobs:
         with:
           script: |
             const title = `Prepare me\n::set-output name=command::gh status`;
-            const body  = "CTF helper: created issue to trigger vulnerable workflow";
+            const body  = 'Trigger from helper workflow';
             await github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
